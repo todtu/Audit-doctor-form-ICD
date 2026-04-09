@@ -10,7 +10,8 @@ import {
   Sparkles,
   ArrowRightLeft,
   Loader2,
-  X
+  X,
+  Search
 } from 'lucide-react';
 import { AuditRecord, AUDITORS, DEPARTMENTS } from './types';
 import ICDSearch from './components/ICDSearch';
@@ -32,9 +33,17 @@ export default function App() {
     sumAdjRwAfter: 0,
     auditor: AUDITORS[0],
     department: DEPARTMENTS[0],
-    icd10: [],
-    icd9: [],
-    diagnosis: ''
+    icd10: Array(12).fill(''),
+    icd9: Array(20).fill(''),
+    diagnosis: '',
+    age: 0,
+    ageDay: 0,
+    sex: '1',
+    discType: '1',
+    admWt: 0,
+    losd: 0,
+    loshr: 0,
+    pdx: ''
   });
 
   // Dashboard Filters
@@ -75,6 +84,14 @@ export default function App() {
       icd10: formData.icd10 || [],
       icd9: formData.icd9 || [],
       diagnosis: formData.diagnosis || '',
+      age: Number(formData.age) || 0,
+      ageDay: Number(formData.ageDay) || 0,
+      sex: formData.sex || '1',
+      discType: formData.discType || '1',
+      admWt: Number(formData.admWt) || 0,
+      losd: Number(formData.losd) || 0,
+      loshr: Number(formData.loshr) || 0,
+      pdx: formData.pdx || '',
       createdAt: new Date().toISOString()
     };
 
@@ -86,20 +103,26 @@ export default function App() {
       sumAdjRwAfter: 0,
       auditor: AUDITORS[0],
       department: DEPARTMENTS[0],
-      icd10: [],
-      icd9: [],
-      diagnosis: ''
+      icd10: Array(12).fill(''),
+      icd9: Array(20).fill(''),
+      diagnosis: '',
+      age: 0,
+      ageDay: 0,
+      sex: '1',
+      discType: '1',
+      admWt: 0,
+      losd: 0,
+      loshr: 0,
+      pdx: ''
     });
     setInsights(null);
   };
 
-  const toggleICD = (code: string, type: 'icd10' | 'icd9') => {
+  const updateICDArray = (index: number, value: string, type: 'icd10' | 'icd9') => {
     setFormData(prev => {
-      const current = prev[type] || [];
-      const next = current.includes(code) 
-        ? current.filter(c => c !== code)
-        : [...current, code];
-      return { ...prev, [type]: next };
+      const current = [...(prev[type] || [])];
+      current[index] = value;
+      return { ...prev, [type]: current };
     });
   };
 
@@ -107,10 +130,13 @@ export default function App() {
     if (!formData.diagnosis) return;
     setLoadingInsights(true);
     try {
+      const icd10 = [formData.pdx, ...(formData.icd10 || [])].filter(Boolean) as string[];
+      const icd9 = (formData.icd9 || []).filter(Boolean) as string[];
+      
       const data = await getDiagnosticInsights(
         formData.diagnosis, 
-        formData.icd10 || [], 
-        formData.icd9 || []
+        icd10, 
+        icd9
       );
       setInsights(data);
     } catch (error) {
@@ -237,9 +263,97 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Patient Info Section (DRG Seeker Style) */}
+                <div className="mt-8 p-6 bg-pastel-brown rounded-3xl space-y-6">
+                  <h3 className="text-lg font-bold text-center text-accent-brown">ข้อมูลผู้ป่วย (Patient Info)</h3>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-center block">Age</label>
+                      <input type="number" value={formData.age} onChange={e => setFormData({...formData, age: Number(e.target.value)})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(years)</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-center block">Age-Day</label>
+                      <input type="number" value={formData.ageDay} onChange={e => setFormData({...formData, ageDay: Number(e.target.value)})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(days)</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-center block">Sex</label>
+                      <input type="text" value={formData.sex} onChange={e => setFormData({...formData, sex: e.target.value})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(1 or 2)</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-center block">Disc Type</label>
+                      <input type="text" value={formData.discType} onChange={e => setFormData({...formData, discType: e.target.value})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(1,2,3,4,5,8,9)</span>
+                    </div>
+                    <div className="space-y-1 col-span-1 sm:col-span-2">
+                      <label className="text-[10px] font-bold uppercase text-center block">Adm Wt</label>
+                      <input type="number" value={formData.admWt} onChange={e => setFormData({...formData, admWt: Number(e.target.value)})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(kgs)</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-center block">LOSD</label>
+                      <input type="number" value={formData.losd} onChange={e => setFormData({...formData, losd: Number(e.target.value)})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(days)</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-center block">LOSHr</label>
+                      <input type="number" value={formData.loshr} onChange={e => setFormData({...formData, loshr: Number(e.target.value)})} className="input-field text-center px-1" />
+                      <span className="text-[10px] text-center block">(hours)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase">PDx (Principal Diagnosis)</label>
+                    <input 
+                      type="text" 
+                      value={formData.pdx} 
+                      onChange={e => setFormData({...formData, pdx: e.target.value})} 
+                      className="input-field bg-red-100 border-red-200" 
+                      placeholder="ICD10 Code"
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-xs font-bold uppercase">SDx (Secondary Diagnosis - ICD10)</label>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                      {Array(12).fill(0).map((_, i) => (
+                        <div key={i} className="space-y-1">
+                          <span className="text-[10px] font-bold block">SDx{i+1}</span>
+                          <input 
+                            type="text" 
+                            value={formData.icd10?.[i] || ''} 
+                            onChange={e => updateICDArray(i, e.target.value, 'icd10')}
+                            className="input-field text-xs p-2 bg-yellow-50 border-yellow-200" 
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-xs font-bold uppercase">Proc (Procedures - ICD9)</label>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                      {Array(20).fill(0).map((_, i) => (
+                        <div key={i} className="space-y-1">
+                          <span className="text-[10px] font-bold block">Proc{i+1}</span>
+                          <input 
+                            type="text" 
+                            value={formData.icd9?.[i] || ''} 
+                            onChange={e => updateICDArray(i, e.target.value, 'icd9')}
+                            className="input-field text-xs p-2 bg-blue-50 border-blue-200" 
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="mt-8 space-y-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">Clinical Diagnosis</label>
+                    <label className="text-sm font-semibold">Clinical Diagnosis (Notes)</label>
                     <textarea 
                       value={formData.diagnosis}
                       onChange={e => setFormData({...formData, diagnosis: e.target.value})}
@@ -248,17 +362,36 @@ export default function App() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <ICDSearch 
-                      type="ICD10" 
-                      onSelect={code => toggleICD(code, 'icd10')} 
-                      selectedCodes={formData.icd10 || []} 
-                    />
-                    <ICDSearch 
-                      type="ICD9" 
-                      onSelect={code => toggleICD(code, 'icd9')} 
-                      selectedCodes={formData.icd9 || []} 
-                    />
+                  <div className="card p-4 bg-pastel-orange-light border-pastel-orange">
+                    <h4 className="text-sm font-bold mb-3 flex items-center gap-2">
+                      <Search size={16} />
+                      ICD Search Helper
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <ICDSearch 
+                        type="ICD10" 
+                        onSelect={code => {
+                          // Find first empty slot or append
+                          const nextArr = [...(formData.icd10 || [])];
+                          const emptyIdx = nextArr.findIndex(v => !v);
+                          if (emptyIdx !== -1) nextArr[emptyIdx] = code;
+                          else nextArr.push(code);
+                          setFormData({...formData, icd10: nextArr});
+                        }} 
+                        selectedCodes={[]} 
+                      />
+                      <ICDSearch 
+                        type="ICD9" 
+                        onSelect={code => {
+                          const nextArr = [...(formData.icd9 || [])];
+                          const emptyIdx = nextArr.findIndex(v => !v);
+                          if (emptyIdx !== -1) nextArr[emptyIdx] = code;
+                          else nextArr.push(code);
+                          setFormData({...formData, icd9: nextArr});
+                        }} 
+                        selectedCodes={[]} 
+                      />
+                    </div>
                   </div>
                 </div>
 

@@ -7,9 +7,18 @@ export interface AuditRecord {
   difference: number;
   auditor: string;
   department: string;
-  icd10: string[];
-  icd9: string[];
   diagnosis: string;
+  // Clinical fields from DRG Seeker
+  age: number;
+  ageDay: number;
+  sex: string;
+  discType: string;
+  admWt: number;
+  losd: number;
+  loshr: number;
+  pdx: string;
+  icd10: string[]; // SDx1 - SDx12
+  icd9: string[];  // Proc1 - Proc20
   createdAt: string;
 }
 

@@ -97,6 +97,7 @@ export default function Dashboard({ records, filters }: DashboardProps) {
             <tr>
               <th className="p-4 text-sm font-bold">AN</th>
               <th className="p-4 text-sm font-bold">D/C Date</th>
+              <th className="p-4 text-sm font-bold">PDx</th>
               <th className="p-4 text-sm font-bold">Dept</th>
               <th className="p-4 text-sm font-bold">Before</th>
               <th className="p-4 text-sm font-bold">After</th>
@@ -109,6 +110,7 @@ export default function Dashboard({ records, filters }: DashboardProps) {
               <tr key={r.id} className="border-t border-pastel-brown hover:bg-pastel-brown-light transition-colors">
                 <td className="p-4 text-sm">{r.an}</td>
                 <td className="p-4 text-sm">{format(parseISO(r.dcDate), 'dd/MM/yyyy')}</td>
+                <td className="p-4 text-sm font-mono font-bold text-red-600">{r.pdx || '-'}</td>
                 <td className="p-4 text-sm">{r.department}</td>
                 <td className="p-4 text-sm">{r.sumAdjRwBefore.toFixed(4)}</td>
                 <td className="p-4 text-sm">{r.sumAdjRwAfter.toFixed(4)}</td>
