@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pastel-orange-light: #fff7ed;
+  --color-pastel-orange: #ffedd5;
+  --color-pastel-orange-dark: #fed7aa;
+  --color-pastel-brown-light: #fafaf9;
+  --color-pastel-brown: #f5f5f4;
+  --color-pastel-brown-dark: #e7e5e4;
+  --color-accent-orange: #f97316;
+  --color-accent-brown: #78350f;
+}
+
+@layer base {
+  body {
+    @apply bg-pastel-brown-light text-accent-brown font-sans;
+  }
+}
+
+.card {
+  @apply bg-white rounded-3xl shadow-sm border border-pastel-brown-dark overflow-hidden;
+}
+
+.btn-primary {
+  @apply bg-accent-orange text-white px-6 py-2 rounded-full font-medium transition-all hover:bg-orange-600 active:scale-95 disabled:opacity-50;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 rounded-xl border border-pastel-brown-dark focus:outline-none focus:ring-2 focus:ring-pastel-orange-dark bg-white;
+}
+
