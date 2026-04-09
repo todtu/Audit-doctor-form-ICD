@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, ErrorInfo, ReactNode } from 'react';
 import { 
   ClipboardList, 
   LayoutDashboard, 
@@ -9,7 +9,8 @@ import {
   ChevronRight,
   Sparkles,
   ArrowRightLeft,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react';
 import { AuditRecord, AUDITORS, DEPARTMENTS } from './types';
 import ICDSearch from './components/ICDSearch';
@@ -63,7 +64,7 @@ export default function App() {
     if (!formData.an || !formData.dcDate) return;
 
     const newRecord: AuditRecord = {
-      id: crypto.randomUUID(),
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2),
       an: formData.an!,
       dcDate: formData.dcDate!,
       sumAdjRwBefore: Number(formData.sumAdjRwBefore) || 0,
@@ -434,3 +435,4 @@ export default function App() {
     </div>
   );
 }
+

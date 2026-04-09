@@ -1,6 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not defined. Please set it in your environment variables.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export interface ICDResult {
   code: string;
@@ -13,6 +24,7 @@ export interface DiagnosticInsight {
 }
 
 export async function searchICD(query: string, type: 'ICD10' | 'ICD9'): Promise<ICDResult[]> {
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: `Search for ${type} codes and descriptions matching: "${query}". Return as a JSON array of objects with "code" and "description" fields.`,
@@ -41,6 +53,7 @@ export async function searchICD(query: string, type: 'ICD10' | 'ICD9'): Promise<
 }
 
 export async function getDiagnosticInsights(diagnosis: string, icd10: string[], icd9: string[]): Promise<DiagnosticInsight> {
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: `Analyze the following diagnosis and codes:
